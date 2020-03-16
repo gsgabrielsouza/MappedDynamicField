@@ -54,7 +54,7 @@ namespace POC.MappedFieldToAnother
             Console.ReadKey();
         }
 
-        static void AutoMapper<TSource, TDestination>(IEnumerable<IPropertyMap> propertiesMap, EcommerceOrderDTO source, Order destination)
+        static void AutoMapper<TSource, TDestination>(IEnumerable<IPropertyMap> propertiesMap, TSource source, TDestination destination)
         {
             Action<IMapperConfigurationExpression> expression = x =>
             {
