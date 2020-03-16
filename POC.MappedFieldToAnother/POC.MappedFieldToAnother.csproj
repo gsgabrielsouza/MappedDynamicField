@@ -6,7 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="9.0.0" />
+    <ProjectReference Include="..\..\..\..\Desktop\git\AutoMapper\src\AutoMapper\AutoMapper.csproj" />
+    <ProjectReference Include="..\MapDynamicField\MapDynamicField.csproj" />
   </ItemGroup>
 
 </Project>

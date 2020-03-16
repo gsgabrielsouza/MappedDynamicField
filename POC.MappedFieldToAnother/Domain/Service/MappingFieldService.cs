@@ -19,6 +19,7 @@ namespace POC.MappedFieldToAnother.Domain.Service
                 new MappingField(3, "AmountOrder", "TotalOrderAmount", "GrossAmount"),
                 new MappingField(4, "Quantity", "Quantity", "Quantity"),
                 new MappingField(5, "Shipping.Method", "ShippingMethod", "Shipping"),
+                new MappingField(5, "Shipping.Teste.Testando", "Quantity", "Quantity"),
             };
         }
     }

@@ -1,8 +1,9 @@
-﻿using System;
+﻿using MapDynamicField.TransferObject;
+using System;
 
 namespace POC.MappedFieldToAnother.Domain.Entities
 {
-    public class Order
+    public class Order : IDestination
     {
         public int Id { get; set; }
         public int ProductId { get; set; }
@@ -10,6 +11,6 @@ namespace POC.MappedFieldToAnother.Domain.Entities
         public decimal AmountOrder { get; set; }
         public int Quantity { get; set; }
 
-        public Shipping Shipping { get; set; }
+        //public Shipping Shipping { get; set; }
     }
 }
