@@ -15,13 +15,13 @@ namespace POC.MappedFieldToAnother.DTO.Order
             GrossAmount = grossAmount;
             ProductId = productId;
             Quantity = quantity;
-            //Shipping = shipping;
+            Shipping = shipping;
         }
 
         public DateTime DueDate { get; set; }
         public decimal GrossAmount { get; set; }
         public int ProductId { get; set; }
         public int Quantity { get; set; }
-        //public string Shipping { get; set; }
+        public string Shipping { get; set; }
     }
 }

@@ -11,6 +11,6 @@ namespace POC.MappedFieldToAnother.Domain.Entities
         public decimal AmountOrder { get; set; }
         public int Quantity { get; set; }
 
-        //public Shipping Shipping { get; set; }
+        public Shipping Shipping { get; set; }
     }
 }
