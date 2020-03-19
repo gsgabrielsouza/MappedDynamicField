@@ -23,11 +23,6 @@ namespace POC.MappedFieldToAnother
 
         static Program()
         {
-            //configuration = new MapperConfiguration(cfg =>
-            //{
-            //    //cfg.CreateMap<Bar, BarDto>();
-            //});
-
 
         }
 
@@ -38,18 +33,11 @@ namespace POC.MappedFieldToAnother
 
             var nonIntegratedOrders = ecommerceOrderService.GetNonIntegraded();
             var mapping = mappingFieldService.GetFields();
-
-            var orders = new List<Order>();
-            //MyImplementation(nonIntegratedOrders, mapping, orders);
             var order = new Order();
-
-            AutoMapper<EcommerceOrderDTO, Order>(
+            AutoMapper(
                 mapping.Select(x => new MapDynamicField.TransferObject.PropertyMap(x.EcommerceProperty, x.IntegratorProperty)),
                 nonIntegratedOrders.First(),
                 order);
-
-            foreach (var item in orders)
-                Console.WriteLine(JsonSerializer.Serialize(item));
 
             Console.ReadKey();
         }
@@ -73,7 +61,7 @@ namespace POC.MappedFieldToAnother
 
                         var sourceExpression = Expression.Property(peSource, propertyMap.Source);
 
-                            #region Codigo original
+                        #region Codigo original
                             ////// src => src.Property
                             var sourceMapFromExpression =
                                 Expression.Lambda<Func<TSource, object>>(
@@ -83,13 +71,15 @@ namespace POC.MappedFieldToAnother
                             var destinationMapFromExpression =
                                 Expression.Lambda<Func<TDestination, object>>
                                     (Expression.Convert(destinationExpression, typeof(object)), new ParameterExpression[] { peDestination });
-                            #endregion
+                        #endregion
 
-                        //var sourceMapExpression = CreateLambda<TSource>(sourceExpression, peSource);
-                        //var destinationMapExpression = CreateLambda<TDestination>(destinationExpression, peDestination);
+                        var sourceMapExpression = CreateLambda<TSource>(sourceExpression, peSource);
+                        var destinationMapExpression = CreateLambda<TDestination>(destinationExpression, peDestination);
+                      
+                        #region Reflection (ignore)
 
                         //#region Cofigura o destinationMember
-                        //// Expression < Func < TDestination, TMember>>
+                        ////Expression<Func<TDestination, TMember>>
                         //var destinationMemberType = typeof(Expression<>) // talvez n use
                         //    .MakeGenericType(destinationMapExpression.Type);
                         //#endregion
@@ -98,7 +88,7 @@ namespace POC.MappedFieldToAnother
                         ////IPathConfigurationExpression<TSource, TDestination, TMember>
                         //var typeIPathConfigurationExpression = typeof(PathConfigurationExpression<,,>)
                         //    .MakeGenericType(typeof(TSource), typeof(TDestination), sourceMapExpression.Body.Type);
-                      
+
                         //var mapFromMI = typeIPathConfigurationExpression.GetMethod("MapFrom");
 
 
@@ -110,6 +100,7 @@ namespace POC.MappedFieldToAnother
                         //.GetMethod("ForPath", 2, new Type[] { destinationMapExpression.Type, action })
                         //.Invoke(map,
                         //    new object[] { destinationMapExpression, action });
+                        #endregion
 
                         map.ForPath(destinationMapFromExpression, a => a.MapFrom(sourceMapFromExpression));
 
