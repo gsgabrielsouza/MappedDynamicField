@@ -133,7 +133,7 @@ namespace POC.MappedFieldToAnother
                     }
                 }
             };
-
+             
             configuration = new MapperConfiguration(expression);
             var mapper = configuration.CreateMapper();
 
