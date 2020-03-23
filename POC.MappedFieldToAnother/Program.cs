@@ -21,11 +21,6 @@ namespace POC.MappedFieldToAnother
     {
         private static MapperConfiguration configuration;
 
-        static Program()
-        {
-
-        }
-
         static void Main(string[] args)
         {
             var ecommerceOrderService = new EcommerceOrderService();
@@ -50,71 +45,31 @@ namespace POC.MappedFieldToAnother
 
                 foreach (var propertyMap in propertiesMap)
                 {
-                    var peDestination = Expression.Parameter(destination.GetType(), "dest");
                     var peSource = Expression.Parameter(source.GetType(), "src");
+                    var sourceExpression = Expression.Property(peSource, propertyMap.Source);
+                    // src => src.Property
+                    var sourceMapFromExpression =
+                        Expression.Lambda<Func<TSource, object>>(
+                            Expression.Convert(sourceExpression, typeof(object)), new ParameterExpression[] { peSource });
 
+                    var peDestination = Expression.Parameter(destination.GetType(), "dest");
                     if (propertyMap.Destination.IndexOf('.') >= 0)
                     {
                         Expression destinationExpression = peDestination;
                         foreach (var navigatinoPropertieDestination in propertyMap.Destination.Split('.'))
+                        {
                             destinationExpression = Expression.Property(destinationExpression, navigatinoPropertieDestination);
-
-                        var sourceExpression = Expression.Property(peSource, propertyMap.Source);
-
-                        #region Codigo original
-                            ////// src => src.Property
-                            var sourceMapFromExpression =
-                                Expression.Lambda<Func<TSource, object>>(
-                                    Expression.Convert(sourceExpression, typeof(object)), new ParameterExpression[] { peSource });
 
                             //// dest => dest.Property
                             var destinationMapFromExpression =
                                 Expression.Lambda<Func<TDestination, object>>
                                     (Expression.Convert(destinationExpression, typeof(object)), new ParameterExpression[] { peDestination });
-                        #endregion
-
-                        var sourceMapExpression = CreateLambda<TSource>(sourceExpression, peSource);
-                        var destinationMapExpression = CreateLambda<TDestination>(destinationExpression, peDestination);
-                      
-                        #region Reflection (ignore)
-
-                        //#region Cofigura o destinationMember
-                        ////Expression<Func<TDestination, TMember>>
-                        //var destinationMemberType = typeof(Expression<>) // talvez n use
-                        //    .MakeGenericType(destinationMapExpression.Type);
-                        //#endregion
-
-                        //#region memberOptions
-                        ////IPathConfigurationExpression<TSource, TDestination, TMember>
-                        //var typeIPathConfigurationExpression = typeof(PathConfigurationExpression<,,>)
-                        //    .MakeGenericType(typeof(TSource), typeof(TDestination), sourceMapExpression.Body.Type);
-
-                        //var mapFromMI = typeIPathConfigurationExpression.GetMethod("MapFrom");
-
-
-                        ////Action<IPathConfigurationExpression<TSource, TDestination, TMember>>
-                        //var action = typeof(Action<>)
-                        //  .MakeGenericType(typeIPathConfigurationExpression);
-                        //#endregion
-                        //map.GetType()
-                        //.GetMethod("ForPath", 2, new Type[] { destinationMapExpression.Type, action })
-                        //.Invoke(map,
-                        //    new object[] { destinationMapExpression, action });
-                        #endregion
-
-                        map.ForPath(destinationMapFromExpression, a => a.MapFrom(sourceMapFromExpression));
-
-                        //var map2 = x.CreateMap<EcommerceOrderDTO, Order>();
-                        //map2.ForPath(x => x.Shipping.Method, opt => opt.MapFrom(e => e.GrossAmount));
+                            map.ForMember(destinationMapFromExpression, a => a.MapFrom(sourceMapFromExpression));
+                        }
                     }
                     else
                     {
                         var destinationExpression = Expression.Property(peDestination, propertyMap.Destination);
-                        var sourceExpression = Expression.Property(peSource, propertyMap.Source);
-
-                        // source => source.Property
-                        var sourceMapFromExpression = Expression.Lambda<Func<TSource, object>>(
-                            Expression.Convert(sourceExpression, typeof(object)), new ParameterExpression[] { peSource });
 
                         // dest => src.Property
                         var destinationMapFromExpression = Expression.Lambda<Func<TDestination, object>>(
@@ -124,24 +79,23 @@ namespace POC.MappedFieldToAnother
                     }
                 }
             };
-             
+
             configuration = new MapperConfiguration(expression);
+            //configuration = new MapperConfiguration(x =>
+            //{
+            //    //x.CreateMap<EcommerceOrderDTO, Order>()
+            //    //    .ForMember(x => x.Shipping, a => a.Ignore());
+            //    //    x.CreateMap<Shipping, EcommerceOrderDTO>();
+            //    //x.CreateMap<EcommerceOrderDTO, Shipping>()
+            //    //    .ForMember("Method", a => a.MapFrom("Shipping"));
+            //    //x.CreateMap<EcommerceOrderDTO, Order>()
+            //    //    .ForMember(x => x.Shipping.Method, a => a.MapFrom(e => e.Shipping));
+            //    //x.CreateMap<EcommerceOrderDTO, Order>()
+            //    //    .ForMember("Shipping", a => a.MapFrom(""))
+            //});
             var mapper = configuration.CreateMapper();
 
             var result = mapper.Map<Order>(source);
-        }
-
-        private static LambdaExpression CreateLambda<TSource>(Expression expression, ParameterExpression peSource)
-        {
-            var func = typeof(Func<,>).MakeGenericType(typeof(TSource), expression.Type);
-
-            var lambdaMethodInfo = typeof(Expression).GetMethod("Lambda", 1,
-                    new Type[] { typeof(Expression), typeof(ParameterExpression[]) })
-                .MakeGenericMethod(func);
-
-            var lambda = lambdaMethodInfo.Invoke(null, new object[] { expression, new ParameterExpression[] { peSource } });
-
-            return lambda as LambdaExpression;
         }
 
         private static void MyImplementation(List<EcommerceOrderDTO> nonIntegratedOrders, List<MappingField> mapping, List<Order> orders)
